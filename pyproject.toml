@@ -1,0 +1,19 @@
+[project]
+name = "a"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "mysql>=0.0.3",
+    "pymysql>=1.2.3",
+    "sqlalchemy>=2.1.1",
+]
+
+[project.scripts]
+a = "a:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
