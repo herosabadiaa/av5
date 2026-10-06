@@ -3,7 +3,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, rela
 from typing import Optional, List
 from dotenv import load_dotenv
 import os, pymysql
-import time
+import time, re
 
 class Base(DeclarativeBase):
     pass
