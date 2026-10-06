@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, String, Text, Integer, ForeignKey
+from sqlalchemy import create_engine, String, Text, Integer, ForeignKey, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, relationship
 from typing import Optional, List
 from dotenv import load_dotenv
 import os, pymysql
+import time
 
 class Base(DeclarativeBase):
     pass
@@ -55,24 +56,44 @@ def alter_engine():
             engine = create_engine(f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}")
             return engine
 
-def inserir():
+def inserir():  
     while True:
         with Session(engine) as session:
             print('Empresa || Console')
             escolha = input().capitalize().strip()
             if escolha == 'Empresa':
-                nome, localidade, fundacao = input('Nome,Localidade,Fundacao: ').split(',')
-                emp = Empresa(nome, localidade, fundacao)
-                session.add(emp)
-                session.commit()
+                try:
+                    nome, localidade, fundacao = input('Nome,Localidade,Fundacao: ').split(',')
+                    emp = Empresa(nome = nome, localidade = localidade, fundacao = fundacao)
+                    session.add(emp)
+                    session.commit()
+                    print('Empresa adicionada')
+                    break
+                except ValueError:
+                    print('Digite novamente')
+                    time.sleep(1)
             elif escolha == 'Console':
-                nome, ano, geracao, empresa = input('Nome,Ano,Geracao,Empresa: ').split(',')
-                con = Console(nome, ano, geracao)
- 
+                try:
+                    nome, ano, geracao, empresa = input('Nome,Ano,Geracao,Empresa: ').split(',')
+                    con = Console(nome = nome, ano = ano, geracao = geracao)
+                    query = select(Empresa).filter_by(nome=empresa)
+                    empr = session.execute(query).scalar_one_or_none()
 
-                con.empresa = empresa
-                session.add(con)
-                session.commit()
+                    if empr:
+                        con.empresa = empr
+                        session.add(con)
+                        session.commit()
+                        print('Console adicionado')
+                    else:
+                        print('Empresa inexistente')
+                    break
+                except ValueError:
+                    print('Digite novamente')
+                    time.sleep(1)
+
+def listar():
+    with Session(engine) as session:
+        
 
 engine = alter_engine()
 Base.metadata.create_all(engine)
@@ -82,7 +103,7 @@ while True:
     escolha = input().capitalize().strip()
 
     if escolha == 'Inserir':
-        print('inserir')
+        inserir()
     elif escolha == 'Listar':
         print('listar')
     elif escolha == 'Excluir':
