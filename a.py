@@ -109,4 +109,5 @@ while True:
     elif escolha == 'Excluir':
         print('excluir')
     elif escolha == 'Database':
-        alter_engine()
+        engine = alter_engine()
+        Base.metadata.create_all(engine)
