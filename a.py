@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, String, Text, Integer, ForeignKey, select
+from sqlalchemy import create_engine, String, Text, Integer, ForeignKey, select, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session, relationship
 from typing import Optional, List
 from dotenv import load_dotenv
 import os, pymysql
 import time, re
+
 
 class Base(DeclarativeBase):
     pass
@@ -64,18 +65,18 @@ def inserir():
             if escolha == 'Empresa':
                 try:
                     nome, localidade, fundacao = input('Nome,Localidade,Fundacao: ').split(',')
-                    emp = Empresa(nome = nome, localidade = localidade, fundacao = fundacao)
+                    emp = Empresa(nome = nome.capitalize(), localidade = localidade.capitalize(), fundacao = fundacao)
                     session.add(emp)
                     session.commit()
                     print('Empresa adicionada')
                     break
                 except ValueError:
                     print('Digite novamente')
-                    time.sleep(1)
+                    time.sleep(0.5)
             elif escolha == 'Console':
                 try:
                     nome, ano, geracao, empresa = input('Nome,Ano,Geracao,Empresa: ').split(',')
-                    con = Console(nome = nome, ano = ano, geracao = geracao)
+                    con = Console(nome = nome.capitalize(), ano = ano.capitalize(), geracao = geracao)
                     query = select(Empresa).filter_by(nome=empresa)
                     empr = session.execute(query).scalar_one_or_none()
 
@@ -89,11 +90,40 @@ def inserir():
                     break
                 except ValueError:
                     print('Digite novamente')
-                    time.sleep(1)
+                    time.sleep(0.5)
+def excluir():                   
+    while True:
+        with Session(engine) as session:
+            print('Empresa || Console')
+            escolha = input().capitalize().strip()
+            if escolha == 'Empresa':
+                try:
+                    nome = input('Nome: ').strip().capitalize()
+                    query = delete(Empresa).where(Empresa.nome == nome)
+                    session.execute(query)
+                    session.commit()
+                    print('Empresa removida')
+                    break
+                except:
+                    print('Empresa associada a um console, remova o console primeiro')
+                    time.sleep(0.5)
+            elif escolha == 'Console':
+                nome = input('Nome: ').strip().capitalize()
+                query = delete(Console).where(Console.nome == nome)
+                session.execute(query)
+                session.commit()
+                print('Console removido')
+                break
 
 def listar():
-    with Session(engine) as session:
-        
+    while True:
+        with Session(engine) as session:
+            query = select(Empresa, Console).join(Console, Empresa.id == Console.empresa_id).order_by(Empresa.id)
+            lista = session.execute(query).all()
+            for emp, con in lista:
+                print(f"Empresa: {emp.nome}, Localidade: {emp.localidade}, Fundação: {emp.fundacao}")
+                print(f" Console: {con.nome}, Ano: {con.ano}, Geração: {con.geracao}ª")
+            break
 
 engine = alter_engine()
 Base.metadata.create_all(engine)
@@ -101,13 +131,12 @@ Base.metadata.create_all(engine)
 while True:
     print('Inserir || Listar || Excluir || Database')
     escolha = input().capitalize().strip()
-
     if escolha == 'Inserir':
         inserir()
     elif escolha == 'Listar':
-        print('listar')
+        listar()
     elif escolha == 'Excluir':
-        print('excluir')
+        excluir()
     elif escolha == 'Database':
         engine = alter_engine()
         Base.metadata.create_all(engine)
