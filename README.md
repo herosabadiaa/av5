@@ -1,9 +1,13 @@
-1 - Pegar o link https ou ssh do repositório 
-2 - No terminal usar git clone 'link do repositorio'
-3 - Usar cd 'nome da pasta' para entrar na pasta recem baixada
-4 - Usar o comando uv run 'nome.py', caso nao possua o uv, pode-se baixar a parte as bibliotecas listadas no pyproject
-
-
+1. Clonar o repositório usando o comando: git clone https://github.com/<usuario>/<repositorio>.git
+2. Entrar no repositorio usando: cd <repositorio>
+3. Instalar as bibliotecas requeridas no proejeto usando: uv sync
+4. Criar o arquivo .env com: 
+  MYSQL_DATABASE= 
+  MYSQL_HOST=
+  MYSQL_USER=
+  MYSQL_PASSWORD=
+  MYSQL_PORT=
+5. Executar o comando: uv run main.py
 
 MYSQL_DATABASE= Companhia
 MYSQL_HOST=localhost
